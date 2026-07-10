@@ -544,7 +544,7 @@
         }
 
         .popup-box .popup-header h2 {
-            font-size: 22px;
+            font-size: 16px;
             color: #1a2a3a;
             font-weight: 700;
         }
@@ -1564,12 +1564,12 @@
             const newStatus = document.getElementById('popupStatusSelect').value;
             const btn = document.querySelector('.save-status-btn');
             btn.disabled = true;
-            btn.textContent = '⏳ Saving...';
+            btn.textContent = 'Saving...';
 
             db.collection('orders').doc(currentPopupOrderId).update({ status: newStatus })
                 .then(() => {
                     originalStatus = newStatus;
-                    btn.textContent = '✅ Saved!';
+                    btn.textContent = 'Saved!';
                     setTimeout(() => {
                         btn.classList.remove('show');
                         btn.disabled = false;
