@@ -1721,53 +1721,13 @@
         console.log('📋 Orders will always show as "Confirmed" (no pending status)');
     </script>
 
-<script>
-// Service Worker Register করুন
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/ABS-Admin-Panel/sw.js')
+    <script>
+        // Service Worker Register
+        if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/ABS-Admin-Panel/sw.js')
         .then(() => console.log('PWA Ready!'))
-        .catch(() => console.log('PWA Failed'));
-}
-
-// Install Button দেখানোর জন্য
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    
-    // Install Button তৈরি করুন
-    const btn = document.createElement('button');
-    btn.textContent = '📱 Install App';
-    btn.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #2ecc71;
-        color: white;
-        border: none;
-        padding: 14px 32px;
-        border-radius: 12px;
-        font-size: 16px;
-        font-weight: 600;
-        z-index: 9999;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
-    `;
-    btn.onclick = () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((result) => {
-                if (result.outcome === 'accepted') {
-                    alert('App installed successfully!');
-                }
-                deferredPrompt = null;
-                btn.remove();
-            });
+        .catch((err) => console.log('PWA Failed:', err));
         }
-    };
-    document.body.appendChild(btn);
-});
 </script>
     
 </body>
