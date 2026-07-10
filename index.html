@@ -1153,6 +1153,7 @@
         let soundEnabled = false;
         let isSoundPlaying = false;
         let soundInterval = null;
+        let newOrderSoundTimeout = null;
 
         const ordersTbody = document.getElementById('ordersTableBody');
         const dashTbody = document.getElementById('dashTableBody');
@@ -1162,20 +1163,38 @@
 
         // ===== Sound Functions =====
         function playNewOrderSound() {
-            if (!soundEnabled) return;
-            if (isSoundPlaying) return;
+            if (!soundEnabled) {
+                console.log('Sound disabled, skipping');
+                return;
+            }
+            if (isSoundPlaying) {
+                console.log('Sound already playing');
+                return;
+            }
 
             try {
                 if (!audioContext) {
                     audioContext = new(window.AudioContext || window.webkitAudioContext)();
                 }
+                
+                // Resume context if suspended (browser policy)
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
 
                 isSoundPlaying = true;
                 let count = 0;
-                const maxBeeps = 5; // 5 second sound
+                const maxBeeps = 5;
 
                 if (soundInterval) {
                     clearInterval(soundInterval);
+                    soundInterval = null;
+                }
+
+                // Clear any existing timeout
+                if (newOrderSoundTimeout) {
+                    clearTimeout(newOrderSoundTimeout);
+                    newOrderSoundTimeout = null;
                 }
 
                 soundInterval = setInterval(() => {
@@ -1204,15 +1223,15 @@
                     }
 
                     count++;
-                }, 900); // ~1 second interval
+                }, 900);
 
                 // Safety: stop after 6 seconds
-                setTimeout(() => {
+                newOrderSoundTimeout = setTimeout(() => {
                     if (soundInterval) {
                         clearInterval(soundInterval);
                         soundInterval = null;
-                        isSoundPlaying = false;
                     }
+                    isSoundPlaying = false;
                 }, 6000);
 
             } catch (e) {
@@ -1232,13 +1251,18 @@
             
             // Test sound
             playNewOrderSound();
+            // Stop test sound after 2 seconds
             setTimeout(() => {
                 if (soundInterval) {
                     clearInterval(soundInterval);
                     soundInterval = null;
                     isSoundPlaying = false;
                 }
-            }, 5000);
+                if (newOrderSoundTimeout) {
+                    clearTimeout(newOrderSoundTimeout);
+                    newOrderSoundTimeout = null;
+                }
+            }, 2000);
         }
 
         function dismissPermission() {
@@ -1326,29 +1350,35 @@
                     const newOrders = [];
                     snapshot.forEach(doc => {
                         const data = doc.data();
-                        if (!data.status || data.status === 'pending') {
+                        // Always set status to 'confirmed' if it's missing, 'pending', or invalid
+                        const currentStatus = data.status || '';
+                        const validStatuses = ['confirmed', 'shipped', 'delivered', 'cancel'];
+                        if (!currentStatus || currentStatus === 'pending' || !validStatuses.includes(currentStatus.toLowerCase())) {
                             data.status = 'confirmed';
+                            // Update in Firestore
                             db.collection('orders').doc(doc.id).update({ status: 'confirmed' })
+                                .then(() => console.log(`✅ Order ${doc.id} status updated to confirmed`))
                                 .catch(err => console.warn('Auto-update status failed:', err));
                         }
                         newOrders.push({ id: doc.id, ...data });
                     });
 
-                    newOrders.sort((a, b) => {
-                        const dateA = a.order_date_time ? new Date(a.order_date_time).getTime() : 0;
-                        const dateB = b.order_date_time ? new Date(b.order_date_time).getTime() : 0;
-                        return dateB - dateA;
-                    });
-
-                    // Check for new orders
-                    if (lastOrderCount > 0 && newOrders.length > lastOrderCount) {
-                        const diff = newOrders.length - lastOrderCount;
-                        // Play sound for new orders
-                        if (diff > 0) {
-                            playNewOrderSound();
+                    // Check for new orders (count increased)
+                    const oldCount = lastOrderCount;
+                    const newCount = newOrders.length;
+                    
+                    if (oldCount > 0 && newCount > oldCount) {
+                        const diff = newCount - oldCount;
+                        console.log(`🔔 ${diff} new order(s) detected! Playing sound...`);
+                        // Play sound for each new order (with delay between them)
+                        for (let i = 0; i < Math.min(diff, 3); i++) {
+                            setTimeout(() => {
+                                playNewOrderSound();
+                            }, i * 1000);
                         }
                     }
-                    lastOrderCount = newOrders.length;
+                    
+                    lastOrderCount = newCount;
 
                     allOrders = newOrders;
                     renderOrdersTable();
@@ -1390,7 +1420,7 @@
                                 <td><strong>${order.order_id || order.id}</strong></td>
                                 <td>${order.customer_name || '—'}</td>
                                 <td>${order.grand_total || '—'}</td>
-                                <td><span class="status-badge ${statusClass}">${order.status || '—'}</span></td>
+                                <td><span class="status-badge ${statusClass}">${order.status || 'confirmed'}</span></td>
                                 <td style="font-size:12px;">${time}</td>
                             </tr>
                         `;
@@ -1399,7 +1429,7 @@
             }
 
             const total = allOrders.length;
-            const confirmed = allOrders.filter(o => (o.status || '').toLowerCase() === 'confirmed').length;
+            const confirmed = allOrders.filter(o => (o.status || 'confirmed').toLowerCase() === 'confirmed').length;
             const shipped = allOrders.filter(o => (o.status || '').toLowerCase() === 'shipped').length;
             const delivered = allOrders.filter(o => (o.status || '').toLowerCase() === 'delivered').length;
             const cancel = allOrders.filter(o => (o.status || '').toLowerCase() === 'cancel').length;
@@ -1425,7 +1455,7 @@
                 const matchSearch = (order.order_id || '').toLowerCase().includes(search) ||
                     (order.customer_name || '').toLowerCase().includes(search) ||
                     (order.customer_email || '').toLowerCase().includes(search);
-                const matchStatus = status === '' || (order.status || '').toLowerCase() === status;
+                const matchStatus = status === '' || (order.status || 'confirmed').toLowerCase() === status;
                 return matchSearch && matchStatus;
             });
 
@@ -1452,7 +1482,7 @@
                             <td>${order.customer_name || '—'}</td>
                             <td>${order.customer_email || '—'}</td>
                             <td>${order.grand_total || '—'}</td>
-                            <td><span class="status-badge ${statusClass}">${order.status || '—'}</span></td>
+                            <td><span class="status-badge ${statusClass}">${order.status || 'confirmed'}</span></td>
                             <td style="font-size:12px;">${date}</td>
                         </tr>
                     `;
@@ -1539,7 +1569,7 @@
             db.collection('orders').doc(currentPopupOrderId).update({ status: newStatus })
                 .then(() => {
                     originalStatus = newStatus;
-                    btn.textContent = 'Saved!';
+                    btn.textContent = '✅ Saved!';
                     setTimeout(() => {
                         btn.classList.remove('show');
                         btn.disabled = false;
@@ -1659,10 +1689,11 @@
 
         loadAllData();
 
+        // Check for new orders more frequently
         setInterval(() => {
             loadOrders();
             loadBlockedUsers();
-        }, 30000);
+        }, 15000); // Check every 15 seconds instead of 30
 
         // Expose functions
         window.toggleMenu = toggleMenu;
@@ -1678,7 +1709,9 @@
         window.enableSound = enableSound;
         window.dismissPermission = dismissPermission;
 
-        console.log('Admin Panel updated!');
+        console.log('✅ Admin Panel updated!');
+        console.log('🔔 Sound notification is ' + (soundEnabled ? 'ENABLED' : 'DISABLED (click Allow to enable)'));
+        console.log('📋 Orders will always show as "Confirmed" (no pending status)');
     </script>
 
 </body>
