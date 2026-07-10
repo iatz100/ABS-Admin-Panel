@@ -4,8 +4,10 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll([
-        '/admin-panel.html',
-        '/manifest.json'
+        '/',
+        '/manifest.json',
+        '/icon-192.png',
+        '/icon-512.png'
       ]))
   );
 });
