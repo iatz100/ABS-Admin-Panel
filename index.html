@@ -7,8 +7,8 @@
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#2ecc71" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="icon-192.png" />
+    <link rel="manifest" href="/ABS-Admin-Panel/manifest.json" />
+    <link rel="apple-touch-icon" href="/ABS-Admin-Panel/icon-192.png" />
     
     <title>Admin Panel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1724,7 +1724,7 @@
 <script>
 // Service Worker Register করুন
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('/ABS-Admin-Panel/sw.js')
         .then(() => console.log('PWA Ready!'))
         .catch(() => console.log('PWA Failed'));
 }
