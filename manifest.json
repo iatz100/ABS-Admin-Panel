@@ -2,21 +2,21 @@
   "name": "Ali Book Shop",
   "short_name": "Admin Panel",
   "description": "Ali Book Shop Administration Dashboard",
-  "start_url": "/",
+  "start_url": "/ABS-Admin-Panel/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f5f7fa",
   "theme_color": "#2ecc71",
-  "scope": "/",
+  "scope": "/ABS-Admin-Panel/",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/ABS-Admin-Panel/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "/ABS-Admin-Panel/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
