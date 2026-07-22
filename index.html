@@ -30,6 +30,71 @@
             overflow-x: hidden;
         }
 
+        /* --- Fixed Header --- */
+        .topbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: #ffffff;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #eef2f7;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: nowrap;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            border-radius: 0 0 25px 25px;
+        }
+
+        .topbar-fixed .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 26px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 10px;
+            transition: 0.2s;
+            color: #2c3e50;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .topbar-fixed .menu-toggle:hover {
+            background: #eef2f7;
+        }
+
+        .topbar-fixed h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2a3a;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .topbar-fixed .badge {
+            background: #2ecc71;
+            color: white;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 11px;
+            font-weight: 600;
+            flex-shrink: 0;
+            letter-spacing: 0.3px;
+        }
+
+        /* --- Push content down --- */
+        .main-content {
+            padding: 80px 16px 20px 16px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* --- Menu Overlay & Slide (unchanged) --- */
         .menu-overlay {
             position: fixed;
             inset: 0;
@@ -137,53 +202,7 @@
             text-align: center;
         }
 
-        .main-content {
-            margin-left: 0;
-            padding: 20px;
-            transition: margin-left 0.3s ease;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .topbar {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px 0 24px 0;
-            flex-wrap: wrap;
-        }
-
-        .menu-toggle {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            padding: 6px 10px;
-            border-radius: 10px;
-            transition: 0.2s;
-            color: #2c3e50;
-        }
-
-        .menu-toggle:hover {
-            background: #eef2f7;
-        }
-
-        .topbar h1 {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1a2a3a;
-            flex: 1;
-        }
-
-        .topbar .badge {
-            background: #2ecc71;
-            color: white;
-            padding: 4px 16px;
-            border-radius: 40px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
+        /* --- Rest of your styles (unchanged) --- */
         .page-section {
             display: none;
             animation: fadeIn 0.3s ease;
@@ -285,7 +304,7 @@
 
         td {
             padding: 11px 16px;
-            border-bottom: 1px solid #f0f2f5;
+            border-bottom: 1px solid #C18FFA;
             vertical-align: middle;
             font-size: 13px;
         }
@@ -678,6 +697,51 @@
             vertical-align: middle;
         }
 
+        .product-row {
+            display: table-row;
+            border-bottom: 1px solid #BAC5FC;
+        }
+
+        .product-row .label {
+            display: table-cell;
+            font-weight: 700;
+            padding: 8px 20px 8px 0;
+            color: #1a2a3a;
+            font-size: 15px;
+            width: 120px;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .product-row .value {
+            display: table-cell;
+            color: #2c3e50;
+            font-size: 15px;
+            font-weight: 400;
+            padding: 8px 0;
+            word-break: break-word;
+            vertical-align: middle;
+        }
+
+        .product-row .value .view-btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 4px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
+            margin-left: 10px;
+        }
+
+        .product-row .value .view-btn:hover {
+            background: #27ae60;
+            transform: scale(1.05);
+        }
+
         .add-product-link {
             display: inline-block;
             padding: 14px 32px;
@@ -714,7 +778,6 @@
             display: inline-block;
         }
 
-        /* Permission Banner */
         .permission-banner {
             position: fixed;
             bottom: 20px;
@@ -790,7 +853,6 @@
             color: white;
         }
 
-        /* Product Form Styles */
         .product-form-wrapper {
             background: white;
             padding: 20px;
@@ -950,7 +1012,31 @@
             resize: vertical;
         }
 
-        /* Mobile version - 3 buttons in one line */
+        .product-popup-box .product-list {
+            margin-top: 10px;
+        }
+
+        .product-popup-box .product-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .product-popup-box .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-popup-box .product-item .pname {
+            font-weight: 500;
+            color: #1a2a3a;
+        }
+
+        .product-popup-box .product-item .pdetails {
+            color: #7f8c8d;
+            font-size: 13px;
+        }
+
         @media (max-width: 768px) {
             .product-form-wrapper .generator-box .btn-row {
                 display: flex;
@@ -984,9 +1070,13 @@
             .product-form-wrapper .generator-box .btn-row button:last-child {
                 flex: 0.8;
             }
+
+            .product-row .label {
+                width: 80px !important;
+                font-size: 13px !important;
+            }
         }
 
-        /* Very small screens */
         @media (max-width: 480px) {
             .product-form-wrapper .generator-box .btn-row {
                 gap: 4px;
@@ -1009,9 +1099,6 @@
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
-            }
-            .topbar h1 {
-                font-size: 20px;
             }
             .popup-box {
                 padding: 20px 18px;
@@ -1101,15 +1188,28 @@
             .product-form-wrapper .generator-box .upload-row {
                 flex-wrap: wrap;
             }
+
+            .product-row .label {
+                width: 60px !important;
+                font-size: 12px !important;
+                padding: 6px 8px 6px 0 !important;
+            }
+            .product-row .value {
+                font-size: 13px !important;
+                padding: 6px 0 !important;
+            }
+            .product-row .value .view-btn {
+                font-size: 10px !important;
+                padding: 3px 10px !important;
+            }
         }
 
         @media (min-width: 769px) {
             .main-content {
-                padding: 20px 30px;
+                padding: 80px 30px 20px 30px;
             }
         }
 
-        /* Tablet and medium screens */
         @media (min-width: 769px) and (max-width: 1024px) {
             .product-form-wrapper .generator-box .btn-row {
                 flex-wrap: wrap;
@@ -1151,18 +1251,18 @@
         </div>
 
         <div class="menu-footer">
-            v1.0 Powered By Imratul Azad
+            v2.0 Design By Imratul Azad
         </div>
     </nav>
 
+    <!-- FIXED HEADER -->
+    <div class="topbar-fixed">
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        <h1 id="pageTitle">Dashboard</h1>
+        <span class="badge">Live</span>
+    </div>
+
     <div class="main-content" id="mainContent">
-
-        <div class="topbar">
-            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-            <h1 id="pageTitle">Dashboard</h1>
-            <span class="badge">Live</span>
-        </div>
-
         <div class="page-section active" id="page-dashboard">
             <div class="stats-grid">
                 <div class="stat-card green">
@@ -1340,6 +1440,7 @@
         </div>
     </div>
 
+    <!-- Main Order Popup -->
     <div class="popup-overlay" id="orderPopup">
         <div class="popup-box">
             <div class="popup-header">
@@ -1374,6 +1475,10 @@
                     <span class="label">Address:</span>
                     <span class="value" id="popupAddress">—</span>
                 </div>
+                <div class="product-row">
+                    <span class="label">Products:</span>
+                    <span class="value" id="popupProducts">—</span>
+                </div>
                 <div class="detail-row">
                     <span class="label">Payment:</span>
                     <span class="value" id="popupPayment">—</span>
@@ -1389,6 +1494,25 @@
                 <div class="detail-row">
                     <span class="label">Date & Time:</span>
                     <span class="value" id="popupDateTime">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product List Popup -->
+    <div class="popup-overlay" id="productPopup">
+        <div class="popup-box product-popup-box">
+            <div class="popup-header">
+                <div class="header-row">
+                    <h2>Product List</h2>
+                    <button class="close-btn" onclick="closeProductPopup()">✕</button>
+                </div>
+                <div class="order-id" id="productPopupOrderId">🆔 ORD-123456</div>
+            </div>
+            <div class="product-list" id="productListContainer">
+                <div class="empty-state">
+                    <div class="icon">📦</div>
+                    <p>No products found</p>
                 </div>
             </div>
         </div>
@@ -1777,6 +1901,18 @@
             }) : '—';
             document.getElementById('popupDateTime').textContent = date;
 
+            // ===== Product List with View Button =====
+            const productsContainer = document.getElementById('popupProducts');
+            if (order.products && Array.isArray(order.products) && order.products.length > 0) {
+                const productCount = order.products.length;
+                productsContainer.innerHTML = `
+                    ${productCount} item(s)
+                    <button class="view-btn" onclick="openProductPopup('${orderId}')">View</button>
+                `;
+            } else {
+                productsContainer.textContent = '—';
+            }
+
             const select = document.getElementById('popupStatusSelect');
             select.value = order.status || 'confirmed';
 
@@ -1793,6 +1929,47 @@
             document.getElementById('orderPopup').classList.remove('active');
             document.body.style.overflow = 'auto';
             currentPopupOrderId = null;
+        }
+
+        // ===== Product Popup Functions =====
+        function openProductPopup(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            document.getElementById('productPopupOrderId').textContent = '🆔 ' + (order.order_id || orderId);
+
+            const container = document.getElementById('productListContainer');
+            
+            if (order.products && Array.isArray(order.products) && order.products.length > 0) {
+                let html = '';
+                order.products.forEach((p, index) => {
+                    const name = p.name || 'Unknown Product';
+                    const quantity = p.quantity || 1;
+                    const price = p.price || '—';
+                    html += `
+                        <div class="product-item">
+                            <span class="pname">${index + 1}. ${name}</span>
+                            <span class="pdetails">× ${quantity} (${price})</span>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📦</div>
+                        <p>No products found</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('productPopup').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductPopup() {
+            document.getElementById('productPopup').classList.remove('active');
+            document.body.style.overflow = 'auto';
         }
 
         function showSaveButton() {
@@ -1933,6 +2110,10 @@
 
         document.getElementById('orderPopup').addEventListener('click', function(e) {
             if (e.target === this) closeOrderPopup();
+        });
+
+        document.getElementById('productPopup').addEventListener('click', function(e) {
+            if (e.target === this) closeProductPopup();
         });
 
 const apiKey="a5b3fb9ec65e94a6cd657d8dab7e8253";  
@@ -2136,7 +2317,7 @@ document.getElementById("seoBox").style.display="block";
 function copyHTML(){  
 navigator.clipboard.writeText(document.getElementById("output").value);  
 document.getElementById("copyBtn").innerText="Copied!";  
-setTimeout(()=>document.getElementById("copyBtn").innerText="📋 Copy",2000);  
+setTimeout(()=>document.getElementById("copyBtn").innerText="Copy",2000);  
 }  
 
 function loadFromHTML() {
@@ -2146,7 +2327,7 @@ function loadFromHTML() {
         return; 
     }
 
-    console.log("🔄 Loading HTML for conversion...");
+    console.log("Loading HTML for conversion...");
 
     // --- RESET ALL FIELDS ---
     document.getElementById("dynamicFields").innerHTML = "";
@@ -2171,7 +2352,7 @@ function loadFromHTML() {
     container.innerHTML = `<input type="text" id="discount" placeholder="Example: 20">`;
 
     let tableData = extractAllTableData(html);
-    console.log("📊 Extracted table data:", tableData);
+    console.log("Extracted table data:", tableData);
 
     if (tableData.length > 0) {
         // First row → Title
@@ -2189,11 +2370,11 @@ function loadFromHTML() {
             if (labelInput) labelInput.value = tableData[i].label;
             if (valueInput) valueInput.value = tableData[i].value;
         }
-        console.log("✅ Table data loaded successfully!");
+        console.log("Table data loaded successfully!");
     }
 
     let imgs = [...html.matchAll(/<img[^>]*src="([^"]*)"[^>]*>/g)];
-    console.log("🖼️ Found images:", imgs.length);
+    console.log(" Found images:", imgs.length);
 
     if (imgs.length > 0) {
         imageUrls.main = imgs[0][1];
@@ -2213,20 +2394,20 @@ function loadFromHTML() {
     let priceMatch = html.match(/regular\/(.*?)<\/strike>/);
     if (priceMatch) {
         document.getElementById("price").value = decodeHTML(priceMatch[1].trim());
-        console.log("💰 Price loaded:", priceMatch[1]);
+        console.log("Price loaded:", priceMatch[1]);
     }
 
     let discountMatch = html.match(/discount\/(.*?)<\/strike>/);
     let discountValue = discountMatch ? decodeHTML(discountMatch[1].trim()) : "";
     if (discountValue) {
         document.getElementById("discount").value = discountValue;
-        console.log("🏷️ Discount loaded:", discountValue);
+        console.log(" Discount loaded:", discountValue);
     }
 
     let pdfMatch = html.match(/data-pdf="https:\/\/drive.google.com\/file\/d\/(.*?)\/preview"/);
     if (pdfMatch) {
         document.getElementById("pdf").value = pdfMatch[1];
-        console.log("📄 PDF ID loaded:", pdfMatch[1]);
+        console.log("PDF ID loaded:", pdfMatch[1]);
     }
 
     let styleMatch = html.match(/<style>[\s\S]*?\.instock{display:([^}]*)}[\s\S]*?\.stockout{display:([^}]*)}[\s\S]*?<\/style>/);
@@ -2239,16 +2420,16 @@ function loadFromHTML() {
             let container = document.getElementById("discountContainer");
             container.innerHTML = `<input type="text" id="discount" placeholder="Example: 20">`;
             if (discountValue) document.getElementById("discount").value = discountValue;
-            console.log("📦 Stock: In Stock");
+            console.log("Stock: In Stock");
         } else if (inStockDisplay.includes("none") && stockOutDisplay.includes("block")) {
             document.getElementById("stock").value = "stockout";
             let container = document.getElementById("discountContainer");
             container.innerHTML = `<select id="discount"><option>Stock Out!</option></select>`;
-            console.log("📦 Stock: Stock Out");
+            console.log("Stock: Stock Out");
         }
     }
 
-    console.log("🔄 Auto-generating new format HTML...");
+    console.log("Auto-generating new format HTML...");
     generateHTML();
     
     alert("ডেটা লোড হয়েছে!");
@@ -2259,7 +2440,7 @@ function extractAllTableData(html) {
     
     let newFormatRows = [...html.matchAll(/<td class="label">(.*?)<\/td>\s*<td class="value">(.*?)<\/td>/gs)];
     if (newFormatRows.length > 0) {
-        console.log("✅ New format found!");
+        console.log("New format found!");
         for (let row of newFormatRows) {
             let label = decodeHTML(row[1].trim());
             let value = decodeHTML(row[2].trim());
@@ -2277,7 +2458,7 @@ function extractAllTableData(html) {
         let tableContent = tableMatch[0];
         
         let tdMatches = [...tableContent.matchAll(/<td[^>]*>(.*?)<\/td>/gs)];
-        console.log("📝 TD elements found:", tdMatches.length);
+        console.log("TD elements found:", tdMatches.length);
         
         let descriptionText = "";
         let hasDescription = false;
@@ -2308,7 +2489,7 @@ function extractAllTableData(html) {
                     if (value) {
                         descriptionText = value;
                         hasDescription = true;
-                        console.log(`  ✅ Description found: "${value}"`);
+                        console.log(`  Description found: "${value}"`);
                     }
                 } else {
                     // "বিবরণ" শব্দটি বাদ দিয়ে বাকি অংশ নেওয়া
@@ -2371,7 +2552,7 @@ function extractAllTableData(html) {
         }
     }
     
-    console.log(`📊 Total data extracted: ${data.length} rows`);
+    console.log(`Total data extracted: ${data.length} rows`);
     return data;
 }
 
@@ -2395,6 +2576,8 @@ return data[0].map(x=>x[0]).join("");
         window.navigateTo = navigateTo;
         window.openOrderPopup = openOrderPopup;
         window.closeOrderPopup = closeOrderPopup;
+        window.openProductPopup = openProductPopup;
+        window.closeProductPopup = closeProductPopup;
         window.showSaveButton = showSaveButton;
         window.saveStatusChange = saveStatusChange;
         window.blockUser = blockUser;
@@ -2412,8 +2595,10 @@ return data[0].map(x=>x[0]).join("");
 
         console.log('✅ Admin Panel updated!');
         console.log('🔔 Sound notification is ' + (soundEnabled ? 'ENABLED' : 'DISABLED (click Allow to enable)'));
-        console.log('📋 Orders will always show as "Confirmed" (no pending status)');
-        console.log('📦 Product form is now integrated!');
+        console.log('Orders will always show as "Confirmed" (no pending status)');
+        console.log('Product form is now integrated!');
+        console.log('Product list with View button added to order popup!');
+        console.log('✅ Header is now fixed at top (Menu + Live Badge)');
     </script>
 
     <script>
