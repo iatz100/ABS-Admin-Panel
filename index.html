@@ -46,7 +46,6 @@
             gap: 16px;
             flex-wrap: nowrap;
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-            border-radius: 0 0 25px 25px;
         }
 
         .topbar-fixed .menu-toggle {
@@ -1737,6 +1736,13 @@
                         newOrders.push({ id: doc.id, ...data });
                     });
 
+                    // ✅ Sort by date (newest first) once
+                    newOrders.sort((a, b) => {
+                        const dateA = a.order_date_time ? new Date(a.order_date_time).getTime() : 0;
+                        const dateB = b.order_date_time ? new Date(b.order_date_time).getTime() : 0;
+                        return dateB - dateA;
+                    });
+
                     const oldCount = lastOrderCount;
                     const newCount = newOrders.length;
                     
@@ -2005,6 +2011,7 @@
                     if (order) {
                         order.status = newStatus;
                     }
+                    // ✅ Re-sort after status change to keep order
                     allOrders.sort((a, b) => {
                         const dateA = a.order_date_time ? new Date(a.order_date_time).getTime() : 0;
                         const dateB = b.order_date_time ? new Date(b.order_date_time).getTime() : 0;
@@ -2592,13 +2599,6 @@ return data[0].map(x=>x[0]).join("");
         window.generateHTML = generateHTML;
         window.copyHTML = copyHTML;
         window.loadFromHTML = loadFromHTML;
-
-        console.log('✅ Admin Panel updated!');
-        console.log('🔔 Sound notification is ' + (soundEnabled ? 'ENABLED' : 'DISABLED (click Allow to enable)'));
-        console.log('Orders will always show as "Confirmed" (no pending status)');
-        console.log('Product form is now integrated!');
-        console.log('Product list with View button added to order popup!');
-        console.log('✅ Header is now fixed at top (Menu + Live Badge)');
     </script>
 
     <script>
