@@ -1430,6 +1430,21 @@
         .review-card .reply-input-area .btn-cancel-reply:hover {
             background: #7f8c8d;
         }
+        
+        .badge{
+    margin-left:auto;
+    background:#ff3b30;
+    color:#fff;
+    min-width:20px;
+    height:20px;
+    padding:0 6px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    font-weight:bold;
+}
     </style>
 </head>
 <body>
@@ -1456,8 +1471,11 @@
             <span class="icon">📊</span> Dashboard
         </div>
         <div class="menu-item" data-page="orders" onclick="navigateTo('orders')">
-            <span class="icon">📋</span> Orders
-        </div>
+    <span class="icon">📋</span>
+    Orders
+    <span id="ordersBadge" class="badge" style="display:none;"></span>
+    </div>
+
         <div class="menu-item" data-page="block" onclick="navigateTo('block')">
             <span class="icon">🚫</span> Block User
         </div>
@@ -1466,8 +1484,10 @@
         </div>
         <!-- NEW: Post Reviews -->
         <div class="menu-item" data-page="reviews" onclick="navigateTo('reviews')">
-            <span class="icon">⭐</span> Post Reviews
-        </div>
+    <span class="icon">⭐</span>
+    Post Reviews
+    <span id="reviewsBadge" class="badge" style="display:none;"></span>
+    </div>
 
         <div class="menu-footer">
             v2.0 Design By Imratul Azad
@@ -1940,21 +1960,55 @@
                 loadDashboard();
             }
             if (page === 'orders') {
-                renderOrdersTable();
-            }
+              renderOrdersTable();
+
+        db.collection("orders")
+        .where("isRead", "==", false)
+        .get()
+        .then(function(snapshot) {
+
+            const batch = db.batch();
+
+            snapshot.forEach(function(doc) {
+                batch.update(doc.ref, {
+                    isRead: true
+                });
+            });
+
+            return batch.commit();
+        });
+}
             if (page === 'block') {
                 loadBlockedUsers();
             }
             if (page === 'reviews') {
-                loadReviews();
-            }
+
+    loadReviews();
+
+    db.collection("reviews")
+    .where("isRead", "==", false)
+    .get()
+    .then(function(snapshot){
+
+        const batch = db.batch();
+
+        snapshot.forEach(function(doc){
+            batch.update(doc.ref,{
+                isRead:true
+            });
+        });
+        return batch.commit();
+            });
+          }
         }
 
         // ===== Load Data =====
         function loadAllData() {
-            loadOrders();
-            loadBlockedUsers();
-            checkSoundPermission();
+        loadOrders();
+        loadBlockedUsers();
+        checkSoundPermission();
+        listenNewOrders();
+        listenNewReviews();
         }
 
         function loadOrders() {
@@ -2002,6 +2056,43 @@
                 .catch(err => {
                     console.error('Error loading orders:', err);
                 });
+        }
+              function listenNewOrders() {
+
+        db.collection("orders")
+        .where("isRead", "==", false)
+        .onSnapshot(function(snapshot) {
+
+            const badge = document.getElementById("ordersBadge");
+
+            if (!badge) return;
+
+            if (snapshot.size > 0) {
+                badge.textContent = snapshot.size;
+                badge.style.display = "flex";
+            } else {
+                badge.style.display = "none";
+            }
+        });
+      }
+            function listenNewReviews() {
+
+    db.collection("reviews")
+    .where("isRead", "==", false)
+    .onSnapshot(function(snapshot) {
+
+        const badge = document.getElementById("reviewsBadge");
+
+        if (!badge) return;
+
+        if (snapshot.size > 0) {
+            badge.textContent = snapshot.size;
+            badge.style.display = "flex";
+        } else {
+            badge.style.display = "none";
+            }
+          });
+
         }
 
         function loadDashboard() {
