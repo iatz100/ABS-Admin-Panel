@@ -2920,6 +2920,8 @@
 
             let html = '';
             allReviews.forEach(review => {
+              const approveText = review.approved ? "Approved" : "Approve";
+const approveColor = review.approved ? "#2ecc71" : "#f39c12";
                 const createdAt = review.createdAt
     ? (review.createdAt.toDate
         ? review.createdAt.toDate()
@@ -2947,6 +2949,13 @@
                         <div class="review-actions">
                             <button class="btn-review btn-reply" onclick="toggleReplyInput('${review.id}')"> Reply</button>
                             <button class="btn-review btn-view-post" onclick="viewPost('${review.postId}')">View Post</button>
+                            <button
+class="btn-review"
+style="background:${approveColor};color:#fff;"
+onclick="toggleApprove('${review.id}', ${review.approved===true})">
+${approveText}
+</button>
+                            
                             <button class="btn-review btn-delete" onclick="deleteReview('${review.id}')"> Delete</button>
                         </div>
                         <div class="reply-section" id="replySection-${review.id}">
@@ -3131,6 +3140,18 @@
                     alert('Error deleting review: ' + err.message);
                 });
         }
+        
+        function toggleApprove(reviewId, approved){
+
+    db.collection("reviews").doc(reviewId).update({
+        approved: !approved
+    }).then(()=>{
+        loadReviews();
+    }).catch(err=>{
+        alert(err.message);
+    });
+
+}
 
         // ===== INIT =====
         loadAllData();
@@ -3173,6 +3194,7 @@
         window.deleteReply = deleteReply;
         window.deleteReview = deleteReview;
         window.viewPost = viewPost;
+        window.toggleApprove = toggleApprove;
     </script>
 
     <script>
