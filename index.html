@@ -331,18 +331,6 @@
             background: #eafaf1;
             color: #3498db;
         }
-        .status-pending {
-            background: #fef9e7;
-            color: #f39c12;
-        }
-        .status-shipped {
-            background: #f4ecf7;
-            color: #8e44ad;
-        }
-        .status-delivered {
-            background: #d5f5e3;
-            color: #1abc9c;
-        }
         .status-cancel {
             background: #fdedec;
             color: #e74c3c;
@@ -358,6 +346,15 @@
             font-size: 40px;
             margin-bottom: 8px;
         }
+        
+        .tracking-input{
+          flex:1;
+          min-width:0;
+          padding:8px 12px;
+          border:1px solid #dce4ec;
+          border-radius:8px;
+          font-size:14px;
+          }
 
         .controls-bar {
             display: flex;
@@ -1512,17 +1509,9 @@
                     <div class="number" id="dashConfirmed">0</div>
                     <div class="label">Order Confirmed</div>
                 </div>
-                <div class="stat-card purple">
-                    <div class="number" id="dashShipped">0</div>
-                    <div class="label">Shipped</div>
-                </div>
-                <div class="stat-card blue">
-                    <div class="number" id="dashDelivered">0</div>
-                    <div class="label">Delivered</div>
-                </div>
                 <div class="stat-card red">
                     <div class="number" id="dashCancel">0</div>
-                    <div class="label">Cancel</div>
+                    <div clas="label">Cancel</div>
                 </div>
                 <div class="stat-card red">
                     <div class="number" id="dashBlocked">0</div>
@@ -1567,9 +1556,7 @@
                 <select id="statusFilter">
                     <option value="">All Status</option>
                     <option value="confirmed">Confirmed</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancel">Cancel</option>
+                    <option value="cancel">Cancelled</option>
                 </select>
             </div>
 
@@ -1706,14 +1693,28 @@
 
             <div class="status-row">
                 <label>Status:</label>
-                <select id="popupStatusSelect" onchange="showSaveButton()">
+                <select id="popupStatusSelect" onchange="statusChanged()">
                     <option value="confirmed">Confirmed</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
                     <option value="cancel">Cancel</option>
                 </select>
-                <button class="save-status-btn" onclick="saveStatusChange()">Save</button>
             </div>
+            
+            <div class="status-row">
+            <label>Tracking:</label>
+            <input
+              type="url"
+              id="popupTrackingUrl"
+                placeholder="Paste tracking URL..."
+                class="tracking-input"
+                oninput="showSaveButton()">
+    
+          <button
+            id="trackingSaveBtn"
+            type="button"
+            class="save-status-btn"
+          onclick="saveStatusChange()">
+            Save </button>
+        </div>
 
             <div class="detail-grid">
                 <div class="detail-row">
@@ -2018,7 +2019,7 @@
                     snapshot.forEach(doc => {
                         const data = doc.data();
                         const currentStatus = data.status || '';
-                        const validStatuses = ['confirmed', 'shipped', 'delivered', 'cancel'];
+                        const validStatuses = ['confirmed',  'cancel'];
                         if (!currentStatus || currentStatus === 'pending' || !validStatuses.includes(currentStatus.toLowerCase())) {
                             data.status = 'confirmed';
                             db.collection('orders').doc(doc.id).update({ status: 'confirmed' })
@@ -2136,14 +2137,10 @@
 
             const total = allOrders.length;
             const confirmed = allOrders.filter(o => (o.status || 'confirmed').toLowerCase() === 'confirmed').length;
-            const shipped = allOrders.filter(o => (o.status || '').toLowerCase() === 'shipped').length;
-            const delivered = allOrders.filter(o => (o.status || '').toLowerCase() === 'delivered').length;
             const cancel = allOrders.filter(o => (o.status || '').toLowerCase() === 'cancel').length;
 
             document.getElementById('dashTotal').textContent = total;
             document.getElementById('dashConfirmed').textContent = confirmed;
-            document.getElementById('dashShipped').textContent = shipped;
-            document.getElementById('dashDelivered').textContent = delivered;
             document.getElementById('dashCancel').textContent = cancel;
 
             db.collection('blockedUsers').get().then(snapshot => {
@@ -2202,8 +2199,6 @@
             const s = status.toLowerCase();
             const map = {
                 'confirmed': 'status-confirmed',
-                'shipped': 'status-shipped',
-                'delivered': 'status-delivered',
                 'cancel': 'status-cancel'
             };
             return map[s] || 'status-confirmed';
@@ -2218,6 +2213,8 @@
 
             document.getElementById('popupCustomerName').textContent = order.customer_name || 'Unknown Customer';
             document.getElementById('popupOrderId').textContent = '🆔 ' + (order.order_id || orderId);
+            
+            document.getElementById('popupTrackingUrl').value = order.orderUrl || '';
 
             document.getElementById('popupEmail').textContent = order.customer_email || '—';
             document.getElementById('popupPhone').textContent = order.customer_phone || '—';
@@ -2250,7 +2247,7 @@
             const select = document.getElementById('popupStatusSelect');
             select.value = order.status || 'confirmed';
 
-            const saveBtn = document.querySelector('.save-status-btn');
+            const saveBtn = document.getElementById("trackingSaveBtn");
             saveBtn.classList.remove('show');
             saveBtn.disabled = false;
             saveBtn.textContent = 'Save';
@@ -2306,28 +2303,53 @@
             document.body.style.overflow = 'auto';
         }
 
-        function showSaveButton() {
-            const select = document.getElementById('popupStatusSelect');
-            const saveBtn = document.querySelector('.save-status-btn');
+        function statusChanged() {
+    if (!currentPopupOrderId) return;
 
-            if (select.value !== originalStatus) {
-                saveBtn.classList.add('show');
-            } else {
-                saveBtn.classList.remove('show');
-            }
-        }
+    const newStatus = document.getElementById("popupStatusSelect").value;
+
+    db.collection("orders").doc(currentPopupOrderId).update({
+        status: newStatus
+    }).then(() => {
+
+        const order = allOrders.find(o => o.id === currentPopupOrderId);
+        if (order) order.status = newStatus;
+
+        renderOrdersTable();
+        loadDashboard();
+
+    }).catch(err => {
+        alert(err.message);
+    });
+}
+
+        function showSaveButton() {
+
+    const tracking = document.getElementById("popupTrackingUrl").value.trim();
+
+    const order = allOrders.find(o => o.id === currentPopupOrderId);
+
+    const trackingChanged = tracking !== (order?.orderUrl || "");
+
+    const saveBtn = document.getElementById("trackingSaveBtn");
+
+    if (trackingChanged) {
+        saveBtn.classList.add("show");
+    } else {
+        saveBtn.classList.remove("show");
+    }
+}
 
         function saveStatusChange() {
             if (!currentPopupOrderId) return;
 
-            const newStatus = document.getElementById('popupStatusSelect').value;
-            const btn = document.querySelector('.save-status-btn');
+            const trackingUrl = document.getElementById('popupTrackingUrl').value.trim();
+            const btn = document.getElementById("trackingSaveBtn");
             btn.disabled = true;
             btn.textContent = 'Saving...';
 
-            db.collection('orders').doc(currentPopupOrderId).update({ status: newStatus })
+            db.collection('orders').doc(currentPopupOrderId).update({     orderUrl: trackingUrl })
                 .then(() => {
-                    originalStatus = newStatus;
                     btn.textContent = 'Saved!';
                     setTimeout(() => {
                         btn.classList.remove('show');
@@ -2337,8 +2359,9 @@
 
                     const order = allOrders.find(o => o.id === currentPopupOrderId);
                     if (order) {
-                        order.status = newStatus;
+                    order.orderUrl = trackingUrl;
                     }
+                    showSaveButton();
                     allOrders.sort((a, b) => {
                         const dateA = a.order_date_time ? new Date(a.order_date_time).getTime() : 0;
                         const dateB = b.order_date_time ? new Date(b.order_date_time).getTime() : 0;
