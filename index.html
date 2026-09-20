@@ -1495,7 +1495,13 @@
         <div class="menu-item" data-page="add-product" onclick="navigateTo('add-product')">
             <span class="icon">➕</span> Add Product
         </div>
-        <!-- NEW: Post Reviews -->
+        
+        <!-- NEW: Top Post -->
+        <div class="menu-item" data-page="top-post" onclick="navigateTo('top-post')">
+            <span class="icon">🔥</span> Top Post
+        </div>
+
+        <!-- Post Reviews -->
         <div class="menu-item" data-page="reviews" onclick="navigateTo('reviews')">
     <span class="icon">⭐</span>
     Post Reviews
@@ -1682,6 +1688,38 @@
                         <label>Search Description</label>
                         <textarea id="metaDesc"></textarea>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Top Post Page -->
+        <div class="page-section" id="page-top-post">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                <h3 style="font-weight:700; color:#1a2a3a;">Top Posts</h3>
+                <span style="font-size:13px; color:#7f8c8d;" id="topPostCount">0 posts</span>
+            </div>
+            <div class="table-wrapper">
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Post Title</th>
+                                <th>Views</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topPostTableBody">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <div class="icon">🔥</div>
+                                        <p>Loading top posts...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -1975,6 +2013,7 @@
                 orders: 'Orders',
                 block: 'Block User',
                 'add-product': 'Add Product',
+                'top-post': 'Top Post',
                 'reviews': 'Post Reviews'
             };
             document.getElementById('pageTitle').textContent = titles[page] || page;
@@ -2003,6 +2042,9 @@
 }
             if (page === 'block') {
                 loadBlockedUsers();
+            }
+            if (page === 'top-post') {
+                loadTopPosts();
             }
             if (page === 'reviews') {
 
@@ -2940,6 +2982,78 @@
         return data[0].map(x=>x[0]).join("");  
         }
 
+        // ========== TOP POST FUNCTIONS ==========
+        function loadTopPosts() {
+            const tbody = document.getElementById('topPostTableBody');
+            const countSpan = document.getElementById('topPostCount');
+            
+            tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="icon">⏳</div><p>Loading top posts...</p></div></td></tr>`;
+
+            // Fetch from postViews collection ordered by views descending
+            db.collection('postViews').orderBy('views', 'desc').get()
+                .then(snapshot => {
+                    if (snapshot.empty) {
+                        tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="icon">🔥</div><p>No posts found</p></div></td></tr>`;
+                        countSpan.textContent = '0 posts';
+                        return;
+                    }
+
+                    let html = '';
+                    let count = 0;
+                    snapshot.forEach(doc => {
+                        count++;
+                        const data = doc.data();
+
+                        // Image thumbnail
+                        let imgHtml = '—';
+                        if (data.image) {
+                            imgHtml = `<img src="${data.image}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;" onerror="this.style.display='none'">`;
+                        }
+
+                        // Truncate title
+                        let title = data.postTitle || 'Untitled';
+                        if (title.length > 60) title = title.substring(0, 60) + '...';
+
+                        // Generate URL for viewing
+                        let postUrl = data.url || ('https://www.alibookshop.com' + (data.postId || ''));
+
+                        html += `
+                            <tr>
+                                <td>${imgHtml}</td>
+                                <td style="font-weight:500; max-width:250px;">${title}</td>
+                                <td><span style="background:#eafaf1; color:#1a6e3a; padding:4px 12px; border-radius:20px; font-weight:700;"> ${data.views || 0}</span></td>
+                                <td>
+                                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                        <a href="${postUrl}" target="_blank" style="background:#2ecc71; color:white; padding:5px 14px; border-radius:6px; text-decoration:none; font-weight:600; font-size:12px; white-space:nowrap;">View</a>
+                                        <button onclick="deleteTopPost('${doc.id}')" style="background:#e74c3c; color:white; padding:5px 14px; border:none; border-radius:6px; font-weight:600; font-size:12px; cursor:pointer; font-family:'Inter',sans-serif; white-space:nowrap; transition:0.2s;">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    tbody.innerHTML = html;
+                    countSpan.textContent = count + ' posts';
+                })
+                .catch(err => {
+                    console.error('Error loading top posts:', err);
+                    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="icon">⚠️</div><p>Error loading posts: ${err.message}</p></div></td></tr>`;
+                });
+        }
+
+        // ========== DELETE TOP POST ==========
+        function deleteTopPost(docId) {
+            if (!confirm('Delete this post from Top Post list?')) return;
+
+            db.collection('postViews').doc(docId).delete()
+                .then(() => {
+                    loadTopPosts();
+                })
+                .catch(err => {
+                    alert('Error deleting post: ' + err.message);
+                });
+        }
+
         // ========== REVIEWS FUNCTIONS ==========
         let allReviews = [];
         let editingReplyId = null; // track which reply is being edited
@@ -3234,6 +3348,10 @@ ${approveText}
         window.generateHTML = generateHTML;
         window.copyHTML = copyHTML;
         window.loadFromHTML = loadFromHTML;
+
+        // Top Post functions exposed globally
+        window.loadTopPosts = loadTopPosts;
+        window.deleteTopPost = deleteTopPost;
 
         // Reviews functions exposed globally
         window.loadReviews = loadReviews;
